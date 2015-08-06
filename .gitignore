@@ -1,12 +1,249 @@
-*.class
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.*;
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
 
-# Package Files #
-*.jar
-*.war
-*.ear
+public class PopUp extends JDialog implements ActionListener {
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+    private static PopUp imageDialog;
+
+
+    public static int showImage(BufferedImage im) {
+       try {
+           UIManager.setLookAndFeel(
+           "com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+       }
+       catch (Exception e) {
+           System.out.println("Error in trying to set Windows \"look and feel\"."
+                             +" Default will be used instead.");
+       }
+
+       Frame frame = JOptionPane.getFrameForComponent(null);
+       imageDialog = new PopUp(frame,im,"Image Display");
+       imageDialog.setVisible(true);
+
+       return 0;
+    }
+
+
+    public static int showImage(BufferedImage im, String title) {
+       try {
+           UIManager.setLookAndFeel(
+           "com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+       }
+       catch (Exception e) {
+           System.out.println("Error in trying to set Windows \"look and feel\"."
+                             +" Default will be used instead.");
+       }
+
+       Frame frame = JOptionPane.getFrameForComponent(null);
+       imageDialog = new PopUp(frame,im,title);
+       imageDialog.setVisible(true);
+
+       return 0;
+    }
+
+   private PopUp(Frame frame, BufferedImage im, String title) {
+
+      super(frame,title, Dialog.ModalityType.APPLICATION_MODAL );
+
+       JLabel imageArea = new JLabel(new ImageIcon(im));
+       getContentPane().add(imageArea, BorderLayout.CENTER);
+
+       JPanel buttonPane = new JPanel(new FlowLayout());
+       JButton cButton = new JButton("Ok");
+       cButton.setActionCommand("cont");
+       cButton.addActionListener(this);
+       buttonPane.add(cButton);
+
+
+       getContentPane().add(buttonPane, BorderLayout.SOUTH);
+
+       setLocation(0,0);
+
+       pack();
+
+    }
+
+    public void actionPerformed(ActionEvent e) {
+       if ("cont".equals(e.getActionCommand())) {
+          setVisible(false);
+       }
+       else if ("quit".equals(e.getActionCommand())) {
+          System.exit(0);
+       }
+    }
+
+}
+
+/**-----------------------------------------------------------------------------------------------------------------------*/
+
+
+import java.util.*;
+import java.awt.*;
+import java.awt.geom.*;
+import java.awt.image.*;
+import java.awt.event.*;
+
+public class RecursionPractice {
+
+    public static void main(String[] args) {
+
+        System.out.println("2 to the power 5 is " + power(2, 5));
+
+        for (int i = 1; i <= 7; i++) {
+            System.out.println("triangles(i) for i= " + i + " is " + triangles(i));
+        }
+
+        for (int i = 1; i <= 7; i++) {
+            System.out.println("internalEdges(i) for i= " + i + " is " + internalEdges(i));
+        }
+
+        int[] a = {2, 4, 6, 8, 10, 12};
+        int[] b = {1, 1, 6, 21, 29, 31, 3};
+        int[] c = {3, 5, 7, 1, 11, 41};
+        int[] d = {1, 2, 3, 4, 5, 6, 7};
+
+        for (int n = 0; n <= 5; n++) {
+            System.out.println("arrayCheck(n,a,b) for n = " + n + " is " + arrayCheck(n, a, b));
+        }
+
+        PopUp.showImage(recursiveImage(8));
+
+        for (int i = 0; i <= 8; i++) {
+            PopUp.showImage(recursiveImage(i), "recursiveImage(" + i + ")");
+        }
+
+
+        System.exit(0);  // leave this at the end of the method
+    }
+
+   
+    public static int power(int y, int n) {
+    
+    if (n==0)
+    return 1;
+    else
+    return y * power (y, n-1);
+    }
+    
+    public static int triangles(int n) {
+       
+        if (n == 1) {
+            return n;
+        } else {
+            return triangles(n - 1) + n + n - 1;
+        }
+    }
+
+    public static int internalEdges(int n) {
+     
+
+        if (n == 1) {
+            return 0;
+        } else {
+            return internalEdges(n - 1) + (n - 1) * 3;
+        }
+    }
+
+    public static boolean arrayCheck(int n, int[] a, int[] b) {
+      
+        boolean arraycheck = false;
+
+        if (n > 0) {
+            if (a[n] > b[n]) {
+                arraycheck = true && arrayCheck(n - 1, a, b);
+            } else {
+                arraycheck = false;
+            }
+        } else {
+            if (a[n] > b[n]) {
+                arraycheck = true;
+            } else {
+                arraycheck = false;
+            }
+        }
+        return arraycheck;
+    }
+
+
+    public static BufferedImage recursiveImage(int n) {
+        
+
+
+        if (n == 0) 
+        {
+            return blankImage(Color.black);
+        } else {
+
+            
+            BufferedImage pic = blankImage(Color.white);
+
+
+           
+            BufferedImage smallPic = scale(0.4, recursiveImage(n - 1));
+
+
+            drawImage(pic, smallPic, 0.5, 0.2);
+
+            drawImage(pic, smallPic, 0.2, 0.5);
+
+ 
+            drawImage(pic, smallPic, 0.8, 0.5);
+
+ 
+            drawImage(pic, smallPic, 0.5, 0.8);
+
+            return pic;
+        }
+    }
+    public static final int imageSize = 400;
+
+    public static BufferedImage blankImage(Color colour) {
+        
+        BufferedImage im = new BufferedImage(imageSize, imageSize,
+                BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = im.createGraphics(); 
+        g2d.setPaint(colour);
+        g2d.fill(new Rectangle2D.Double(0.0, 0.0, 1.0 * imageSize, 1.0 * imageSize));
+        return im;
+    }
+
+    public static BufferedImage scale(double scalingFactor,
+            BufferedImage inputImage) {
+       
+
+        int w = (int) (scalingFactor * inputImage.getWidth());
+        int h = (int) (scalingFactor * inputImage.getHeight());
+        BufferedImage im = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = im.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        AffineTransform at = new AffineTransform();
+        at.scale(scalingFactor, scalingFactor);
+        g.setTransform(at); 
+        g.drawImage(inputImage, null, 0, 0);
+
+        return im;
+
+    }
+
+    public static void drawImage(BufferedImage background,
+            BufferedImage drawPic,
+            double leftOffset,
+            double topOffset) {
+       
+
+        int w = background.getWidth();
+        int h = background.getHeight();
+        Graphics2D g = background.createGraphics(); 
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 
+                RenderingHints.VALUE_ANTIALIAS_ON);
+        int x = (int) (leftOffset * w - (drawPic.getWidth() / 2.0));
+        int yTop = (int) (topOffset * h - (drawPic.getHeight() / 2.0));
+        g.drawImage(drawPic, null, x, yTop);
+
+    }
+}
+
